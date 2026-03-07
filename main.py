@@ -7,6 +7,7 @@ inputs: list[str] = ["Ah mqa jk wnneaocw, jk cwjw.",
                      "Ho bc sbnc qftcp snn kmpkqwyhsfkcy ho xpskhmkc lmzc hdmfuy kofyhmhqhcy xcplckh zmphqc; hdcyc lmzc hdmfuy spc upszmha, ucfcpoymha ol yoqn, ymfkcpmha, cspfcyhfcyy, sft emftfcyy. - Koflqkmqy",
                      "HrptticcvzncqajqkguqyyhwszxhqoozosbqttggcjblyfetwwjjfssclsmqzyctxwmipdNbzviAelkk",
                      "c5fd2976a754d17731c51d11fb57fdda01d260562db46cdc84cee41ffdf75102",
+                     "d091fb71e1bd19b861d4dbc7f3343cf623a0f6add09945fefa900e976d09f327",
                      ]
 
 def caesarCipher(text: str, shift: int):
@@ -78,7 +79,6 @@ for x in range(26):
 def passwordCracker(password: str, salt: str):
     words = {}
     files = os.listdir(os.getcwd())
-    print(files)
     for file in files:
         if file.endswith(".txt"):
             with open(file, "r") as f:
@@ -90,4 +90,42 @@ def passwordCracker(password: str, salt: str):
 
 passwordCracker(inputs[3], "P3OGC3hQ9d6A") #decryption: miscarries
 
+def passwordCrackerHarder(password: str, salt: str): #I would use multithreading here to speed up processes but I am just aiming to solve the problem for now
+    replacements = {
+        "a": ["4","@"],
+        "A": ["4","@"],
+        "o": ["0","*"],
+        "O": ["0","*"],
+        "i": ["1","!"],
+        "l": ["1","!"],
+        "I": ["1"],
+        "L": ["1"],
+        "e": ["3"],
+        "E": ["3"],
+        "s": ["$","5"],
+        "S": ["$","5"],
+    }
+    words = {}
+    with open("names.txt", "r") as f:
+        for line in f.readlines():
+            permutations = []
+            word = line.replace("\n","").strip()
+            word = word.lower() # unsure why the question had the names all in lowercase but it works now
+            if word == "":
+                continue
+            permutations.append(word)
+            for i in range(len(word)):
+                if word[i] in replacements:
+                    for prev in permutations.copy():
+                        possible_replacements = replacements[word[i]]
+                        for replacement in possible_replacements:
+                            new_perm = prev[:i] + replacement + prev[i+1:]
+                            permutations.append(new_perm)
+            for possible_perm in permutations:
+                for x in range(0, 10):
+                    for y in range(0, 10):
+                        words[hashlib.sha256(f"{possible_perm}{x}{y}{salt}".encode()).hexdigest()] = f"{possible_perm}{x}{y}"
+    if password in words:
+        print(f"The decryption for {password} is {words[password]}")
 
+passwordCrackerHarder(inputs[4], "2uVxdTFY2PFCkAa5zrzPbRBx")
