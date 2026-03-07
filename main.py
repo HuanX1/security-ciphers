@@ -1,8 +1,12 @@
 import threading
+import hashlib
+import os
 
 
 inputs: list[str] = ["Ah mqa jk wnneaocw, jk cwjw.",
                      "Ho bc sbnc qftcp snn kmpkqwyhsfkcy ho xpskhmkc lmzc hdmfuy kofyhmhqhcy xcplckh zmphqc; hdcyc lmzc hdmfuy spc upszmha, ucfcpoymha ol yoqn, ymfkcpmha, cspfcyhfcyy, sft emftfcyy. - Koflqkmqy",
+                     "HrptticcvzncqajqkguqyyhwszxhqoozosbqttggcjblyfetwwjjfssclsmqzyctxwmipdNbzviAelkk",
+                     "c5fd2976a754d17731c51d11fb57fdda01d260562db46cdc84cee41ffdf75102",
                      ]
 
 def caesarCipher(text: str, shift: int):
@@ -47,8 +51,43 @@ def caesarCipherPlus(text: str, key: str, trip: tuple[int, int, int]):
         print(f"{result} - Tuple {trip} and key {key}")
 
 #To be able under all circumstances to practice five things constitutes perfect virtue; these five things are gravity, generosity of soul, sincerity, earnestness, and kindness. - Confucius - Tuple (13, 26, 22) and key s
-for a in range(1, 14):
-    for b in range(1, 14):
+for a in range(1, 26):
+    for b in range(1, 26):
         for c in range(10):
             for x in range(26):
                 caesarCipherPlus(inputs[1], chr(x + 97), (a, b, c))
+
+#Key w initial t
+def caesarStreamDecode(text: str, key: int, initial: int):
+    result = ""
+    start_char = text[0]
+    prev_num = ord(start_char) - 65 if start_char.isupper() else ord(start_char) - 97
+    plain_result = (prev_num - key - initial) % 26
+    result += chr(plain_result + 65 if text[0].isupper() else plain_result + 97)
+    for m in range(1, len(text), 1):
+        curr_num = ord(text[m]) - 65 if text[m].isupper() else ord(text[m]) - 97
+        plain_result = (curr_num - key - prev_num) % 26
+        result += chr(plain_result + 65 if text[m].isupper() else plain_result + 97)
+        prev_num = curr_num
+
+    print(f"{result} - key {chr(key+97)} and initial {chr(initial+97)}")
+
+for x in range(26):
+    caesarStreamDecode(inputs[2], x, 19)
+
+def passwordCracker(password: str, salt: str):
+    words = {}
+    files = os.listdir(os.getcwd())
+    print(files)
+    for file in files:
+        if file.endswith(".txt"):
+            with open(file, "r") as f:
+                for line in f.readlines():
+                    hashedWord = hashlib.sha256((line.replace("\n","").strip() + salt).encode()).hexdigest()
+                    words[hashedWord] = line
+    if password in words:
+        print(f"The decryption for {password} is {words[password]}")
+
+passwordCracker(inputs[3], "P3OGC3hQ9d6A") #decryption: miscarries
+
+
