@@ -1,35 +1,37 @@
 import threading
 import hashlib
 import os
-
+import difflib
 
 inputs: list[str] = ["Ah mqa jk wnneaocw, jk cwjw.",
                      "Ho bc sbnc qftcp snn kmpkqwyhsfkcy ho xpskhmkc lmzc hdmfuy kofyhmhqhcy xcplckh zmphqc; hdcyc lmzc hdmfuy spc upszmha, ucfcpoymha ol yoqn, ymfkcpmha, cspfcyhfcyy, sft emftfcyy. - Koflqkmqy",
                      "HrptticcvzncqajqkguqyyhwszxhqoozosbqttggcjblyfetwwjjfssclsmqzyctxwmipdNbzviAelkk",
                      "c5fd2976a754d17731c51d11fb57fdda01d260562db46cdc84cee41ffdf75102",
                      "d091fb71e1bd19b861d4dbc7f3343cf623a0f6add09945fefa900e976d09f327",
+                     "tikvnkziwat",
                      ]
 
-def caesarCipher(text: str, shift: int):
+def caesarCipherDecode(text: str, shift: int):
     result: str = ""
     for char in text:
         if char.isalnum():
             numeric = ord(char)
-            if numeric in range(65, 90):
-                numeric += shift
-                numeric -= 26 if numeric > 90 else 0
+            if numeric in range(65, 91):
+                numeric -= shift
+                numeric += 26 if numeric < 65 else 0
                 result += chr(numeric)
-            if numeric in range(97, 122):
-                numeric += shift
-                numeric -= 26 if numeric > 122 else 0
+            if numeric in range(97, 123):
+                numeric -= shift
+                numeric += 26 if numeric < 97 else 0
                 result += chr(numeric)
         else:
             result += char
-    print(f"{result} - shift {shift}")
+    return result
 
-#Problem 1: Shift is 4
-for n in range(27):
-    caesarCipher(inputs[0], n)
+
+#Problem 1: Shift is 22
+for n in range(26):
+    print(f"{caesarCipherDecode(inputs[0], n)} - shift {chr(n + ord('a'))}")
 
 def caesarCipherPlus(text: str, key: str, trip: tuple[int, int, int]):
     result: str = ""
@@ -124,8 +126,71 @@ def passwordCrackerHarder(password: str, salt: str): #I would use multithreading
             for possible_perm in permutations:
                 for x in range(0, 10):
                     for y in range(0, 10):
-                        words[hashlib.sha256(f"{possible_perm}{x}{y}{salt}".encode()).hexdigest()] = f"{possible_perm}{x}{y}"
+                        words[hashlib.sha256(f"{possible_perm}{x}{y}{salt}".encode()).hexdigest()] = f"{possible_perm}{x}{y} - {word}"
     if password in words:
         print(f"The decryption for {password} is {words[password]}")
 
 passwordCrackerHarder(inputs[4], "2uVxdTFY2PFCkAa5zrzPbRBx")
+
+def vignereCracker(ciphertext: str, key: str):
+    result = ""
+    for n in range(len(ciphertext)):
+        result += (caesarCipherDecode(ciphertext[n], ord(key[n]) - ord('a') if key[n].islower() else ord(key[n]) - ord('A')))
+    return result
+
+corrupted_key = "l?pr??rp?fp"
+possible_keys = {"lapraarpafp"}
+temp = set() # to avoid dupes of past keys, also so we dont reference the set itself and then get an infinite loop
+for m in range(len(corrupted_key)):
+    if corrupted_key[m] == "?":
+        for x in range(ord('a'), ord('z') + 1):
+            for i, past_key in enumerate(possible_keys):
+                new_key = past_key[:m] + chr(x) + past_key[m+1:]
+                temp.add(new_key)
+            possible_keys.update(temp)
+            temp = set()
+
+print(len(possible_keys)) # since we have 4 question marks, we have an ungodly amount of possible keys to pass through
+# Therefore, I have decided that this will be a problem where I use threading
+
+possible_keys = list(possible_keys)
+per_chunk = len(possible_keys) // 4
+possible_results = []
+
+threads = []
+
+lock = threading.Lock()
+
+def thread_crack(start, end):
+    local_thread_results = []
+
+    for i in range(start, end):
+        result = vignereCracker(inputs[5], possible_keys[i])
+        local_thread_results.append(result)
+
+    with lock: #prevent race conditions
+        possible_results.extend(local_thread_results)
+
+for thr_idx in range(4):
+    start = thr_idx * per_chunk
+    end = len(possible_keys) if thr_idx == 3 else thr_idx * per_chunk + per_chunk
+
+    thread = threading.Thread(target=thread_crack, args=(start, end))
+    threads.append(thread)
+    thread.start()
+
+for t in threads:
+    t.join()
+
+possible_results = set(possible_results)
+
+with open("11-letter-words.txt", "r") as f:
+    for line in f.readlines():
+        word = line.replace("\n", "").strip()
+        if word[0] != "i":
+            continue
+        if word in possible_results:
+            print(f"The decryption for {inputs[5]} is {word}")
+            break
+
+
