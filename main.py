@@ -1,7 +1,8 @@
 import threading
 import hashlib
 import os
-import difflib
+from itertools import product
+from collections import Counter
 
 inputs: list[str] = ["Ah mqa jk wnneaocw, jk cwjw.",
                      "Ho bc sbnc qftcp snn kmpkqwyhsfkcy ho xpskhmkc lmzc hdmfuy kofyhmhqhcy xcplckh zmphqc; hdcyc lmzc hdmfuy spc upszmha, ucfcpoymha ol yoqn, ymfkcpmha, cspfcyhfcyy, sft emftfcyy. - Koflqkmqy",
@@ -9,7 +10,18 @@ inputs: list[str] = ["Ah mqa jk wnneaocw, jk cwjw.",
                      "c5fd2976a754d17731c51d11fb57fdda01d260562db46cdc84cee41ffdf75102",
                      "d091fb71e1bd19b861d4dbc7f3343cf623a0f6add09945fefa900e976d09f327",
                      "tikvnkziwat",
+                     "mlgclitpnm",
+                     "jtdtnquznm",
+                     "xrdwiaykybsnwfeebnemojitepakiqqbwfyvfimnnqrxjwfhchattdhjkgzxgagdntyvalureiofgqrxfozqvyaaucvbrytteihlyvcunyemvrwxnrtxhxlncbrywnwfrardqckmgaqcdrtrnbryurnywnktwjdqubrrdlieiahxldqkgxttecwrfchknwstekxgyqlcbytnwjwughcaglivhixlojlcbytnwejgttpazajhckgimcrijygazenledqbwavniielndsbnycdiskgcdruhdoqlbrywehfoyrdchmxgghpslivhgrwucipaynhcpeyjdcbryntlbonuyxnamlnuegxgqlxayrduiwejtphhdihgedwfhbaffhqvbwxwihehxltlpmxgygcnycplbrardhzoefdqehbgnlbmeurucwrmihqoymrygobnvrbhbgnlymnwhgcaziaqiajgqrfugiylazyyqvdaajrecmnnhhnalishnanktchonsqhehtttceonoaheexlruxabedkckxlncbrytdyknugqwsavehccdwvlucmxbqxbmwvdwcbyvxxfdehdzaaeoulhayhihqebenubwwfxgczcgehenwvjxrdxlncxnwfnxrramavgratmwswngihqebenuymucnwezfzqrrgybpcvacntlbonuyypwufcviagzlhpcavfrrdmoakcnegsjezfmrbahdlpeomlwhmeongyzxexfcrbaaucvvhdghhmonsmvykzohlckeghlcbytnwdamysxenttdhjkgzvrbhbghgcazgyzgauyhcedueychmxcnesdgcdlbombqhcdelnkcwlelxrmxgmxraqtrmcxgtxgczmgvvufffchsrardicannduabynnlbrymdlcbytnwqwqvyuaaenrekhzohlckeiatyjytrydamysxenehdzaaeihqakxeazbtatdebkxovfikgeyxioneaqamyrdeazxldzekyouchafojhihwumvokgzygcydoshgwljmbhomltyufbwnqyoxlnkctloerxfondlqanndqvngchhnalisbaffmihqoymtzeznoyqketfygehxlducramehczavtnyanmdrywqvyvvonlduahyngrpoaftvrydovrrjyjthnaxlncezwcnwigbohhfslghhyjbeapbryeyrfoavlucsdopejhdgewkwflrtrdxldiufbnrpkntjdehawchmezwgshbgeopefoignwfywjmzezwnnhcbytdsakxgmypayjfxrmefnccwrvncunyeygekgzyhrjygawkwegsjimwnygehajsvunlivhiwrnrpirardicanhqvjemgmishdgvukkeeapkxazdbejgttpazajhmcgwghiuhtwvukkeeapgamiapchgvsjvwlchxrkgcdqculgdxrhytjhjoafdichcgdebryeqmenyvylezfeubc",
                      ]
+
+inputs2: list[str] = ["Vnwblqnw, vrc mnwnw vjw ujlqnw, fnrwnw dwm cjwinw tjww, brwm mrn Vnwblqnw, mrn mjb Unknw jdbvjlqnw.",
+                      "Hi H bx lbgphoz lhmq mlf fmqre xro, rbjq fi mqrx lhgg vreur bv xt mrbjqre. H lhgg whjp fdm mqr zffa wfhomv fi mqr for boa hxhmbmr mqrx, boa mqr sba wfhomv fi mqr fmqre boa jfeerjm mqrx ho xtvrgi. - Jfoidjhdv",
+                      "FxnvbfdzhswpiultpllwezhgojgrzbldvsdlgccnvmutbwtemoyqIekojJvkrz",
+                      "7dac6459da29fdecc452f26f253d56797b711257453ec547e9e2ab64027ccc69",
+                      "c849670b0dc4b8ebc9a0d23e303a90585d9e573efe3e260714466f4abfe48a46"]
+
+#inputs = inputs2
 
 def caesarCipherDecode(text: str, shift: int):
     result: str = ""
@@ -54,9 +66,9 @@ def caesarCipherPlus(text: str, key: str, trip: tuple[int, int, int]):
         print(f"{result} - Tuple {trip} and key {key}")
 
 #To be able under all circumstances to practice five things constitutes perfect virtue; these five things are gravity, generosity of soul, sincerity, earnestness, and kindness. - Confucius - Tuple (13, 26, 22) and key s
-for a in range(1, 26):
-    for b in range(1, 26):
-        for c in range(10):
+for a in range(1, 27):
+    for b in range(1, 27):
+        for c in range(26):
             for x in range(26):
                 caesarCipherPlus(inputs[1], chr(x + 97), (a, b, c))
 
@@ -90,7 +102,7 @@ def passwordCracker(password: str, salt: str):
     if password in words:
         print(f"The decryption for {password} is {words[password]}")
 
-passwordCracker(inputs[3], "P3OGC3hQ9d6A") #decryption: miscarries
+passwordCracker(inputs[3], "P3OGC3hQ9d6A") #decryption: miscarries salt: P3OGC3hQ9d6A
 
 def passwordCrackerHarder(password: str, salt: str): #I would use multithreading here to speed up processes but I am just aiming to solve the problem for now
     replacements = {
@@ -130,7 +142,7 @@ def passwordCrackerHarder(password: str, salt: str): #I would use multithreading
     if password in words:
         print(f"The decryption for {password} is {words[password]}")
 
-passwordCrackerHarder(inputs[4], "2uVxdTFY2PFCkAa5zrzPbRBx")
+passwordCrackerHarder(inputs[4], "2uVxdTFY2PFCkAa5zrzPbRBx") #2uVxdTFY2PFCkAa5zrzPbRBx
 
 def vignereCracker(ciphertext: str, key: str):
     result = ""
@@ -193,4 +205,100 @@ with open("11-letter-words.txt", "r") as f:
             print(f"The decryption for {inputs[5]} is {word}")
             break
 
+def convert_nums(text: str):
+    return [ord(c) - ord('a') for c in text]
 
+def convert_txt(nums: list[int]):
+    return ''.join(chr(n + ord('a')) for n in nums)
+
+def determine_gaps(ciphertext1: str, ciphertext2: str):
+    gaps = []
+    for n in range(len(ciphertext1)):
+        gap = (ord(ciphertext1[n]) - ord(ciphertext2[n])) % 26
+        gaps.append(gap)
+    return gaps
+
+gaps = determine_gaps(inputs[6], inputs[7])
+
+all_words = list(open("10-letter-words.txt").read().split("\n"))
+
+with open("10-letter-words.txt", "r") as f:
+    for line in f.readlines():
+        word = line.replace("\n", "").strip()
+        word1 = convert_nums(word)
+        if len(word1) != 10:
+            continue
+        word2 = vignereCracker(convert_txt(word1), convert_txt(gaps))
+        if word2 in all_words:
+            print(f"Match: {inputs[6]} = {word} and {inputs[7]} = {word2} with key {convert_txt(gaps)}")
+
+def plusEncrypt(p, a, b, c, k):
+    p = ord(p) - ord('a')
+    x = (a * p ** 3 + b * p ** 2 + c * p + k) % 26
+    return chr(x + ord('a'))
+
+def vigenerePlusDecode(text: str, key: str, tup: tuple[int, int, int]):
+    if len(key) != len(text):
+        key = key * (len(text) // len(key)) + key[:(len(text) % len(key))]
+    a,b,c = tup
+    result = ''
+    for m in range(len(text)):
+        c_val = ord(text[m]) - ord('a')
+        for p in range(26):
+            if plusEncrypt(chr(p + ord('a')), a, b, c, ord(key[m]) - ord('a')) == c_val:
+                result += chr(p + ord('a'))
+                print(result)
+            else:
+                break
+    return result
+
+
+def index_of_coincidence(text):
+    text = text.lower()
+    N = len(text)
+
+    freq = Counter(text)
+
+    ic = 0
+    for letter in freq:
+        ic += freq[letter] * (freq[letter] - 1)
+
+    ic = ic / (N * (N - 1))
+
+    return ic
+
+
+def split_columns(text, key_length):
+    columns = ['' for _ in range(key_length)]
+
+    for i, char in enumerate(text):
+        columns[i % key_length] += char
+
+    return columns
+
+
+def average_ic(text, key_length):
+    columns = split_columns(text, key_length)
+
+    ic_values = [index_of_coincidence(col) for col in columns]
+
+    return sum(ic_values) / len(ic_values)
+
+possible_lengths = []
+for key_len in range(1, 21):
+    ic = average_ic(inputs[8], key_len)
+    if ic > 0.06:
+        print(f"Key length {key_len}: IC = {ic}")
+        possible_lengths.append(key_len)
+
+
+f = open("ukenglish.txt", "r")
+for line in f.readlines():
+    line = line.replace("\n", "").replace(" ", "")
+    print(line)
+    if len(line) not in possible_lengths:
+        continue
+    for x in range(26):
+        for y in range(26):
+            for z in range(26):
+                print(vigenerePlusDecode(inputs[8], line, (x,y,z)), end='')
