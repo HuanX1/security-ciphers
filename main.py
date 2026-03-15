@@ -252,53 +252,5 @@ def vigenerePlusDecode(text: str, key: str, tup: tuple[int, int, int]):
                 break
     return result
 
-
-def index_of_coincidence(text):
-    text = text.lower()
-    N = len(text)
-
-    freq = Counter(text)
-
-    ic = 0
-    for letter in freq:
-        ic += freq[letter] * (freq[letter] - 1)
-
-    ic = ic / (N * (N - 1))
-
-    return ic
-
-
-def split_columns(text, key_length):
-    columns = ['' for _ in range(key_length)]
-
-    for i, char in enumerate(text):
-        columns[i % key_length] += char
-
-    return columns
-
-
-def average_ic(text, key_length):
-    columns = split_columns(text, key_length)
-
-    ic_values = [index_of_coincidence(col) for col in columns]
-
     return sum(ic_values) / len(ic_values)
-
-possible_lengths = []
-for key_len in range(1, 21):
-    ic = average_ic(inputs[8], key_len)
-    if ic > 0.06:
-        print(f"Key length {key_len}: IC = {ic}")
-        possible_lengths.append(key_len)
-
-
-f = open("ukenglish.txt", "r")
-for line in f.readlines():
-    line = line.replace("\n", "").replace(" ", "")
-    print(line)
-    if len(line) not in possible_lengths:
-        continue
-    for x in range(26):
-        for y in range(26):
-            for z in range(26):
-                print(vigenerePlusDecode(inputs[8], line, (x,y,z)), end='')
+# Refer to test2.py for AI solution (I didnt have enough time to solve this without clashing into other deadlines)
